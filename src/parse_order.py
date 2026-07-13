@@ -7,7 +7,7 @@ import json
 import re
 from copy import copy
 from dataclasses import asdict, dataclass
-from datetime import date, datetime
+from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -109,6 +109,72 @@ def money(value: str) -> float:
     return float(match.group(1).replace(",", "."))
 
 
+MONTHS = {
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+    "января": 1,
+    "февраля": 2,
+    "марта": 3,
+    "апреля": 4,
+    "мая": 5,
+    "июня": 6,
+    "июля": 7,
+    "августа": 8,
+    "сентября": 9,
+    "октября": 10,
+    "ноября": 11,
+    "декабря": 12,
+    "yanvar": 1,
+    "fevral": 2,
+    "mart": 3,
+    "aprel": 4,
+    "may": 5,
+    "iyun": 6,
+    "iyul": 7,
+    "avqust": 8,
+    "sentyabr": 9,
+    "oktyabr": 10,
+    "noyabr": 11,
+    "dekabr": 12,
+}
+
+ORDER_DATE_PATTERN = re.compile(
+    r"(?:order\s+date|date|дата\s+заказа|дата|sifariş\s+tarixi)\s*:?\s*"
+    r"(\d{1,2})\s+([A-Za-zА-Яа-яЁё]+)\s+(\d{4})",
+    re.IGNORECASE,
+)
+
+
+def parse_order_date(root: Node) -> date:
+    for node in walk(root):
+        candidate = text(node)
+        if len(candidate) > 120:
+            continue
+
+        match = ORDER_DATE_PATTERN.search(candidate)
+        if not match:
+            continue
+
+        day, month_name, year = match.groups()
+        month = MONTHS.get(month_name.lower())
+        if month:
+            return date(int(year), month, int(day))
+
+    raise ValueError(
+        "Could not find an order date. The parser supports English, Russian, and Azerbaijani order-date labels."
+    )
+
+
 def summary_from_page_data(html: str) -> dict:
     marker = '"summary":{"total":'
     start = html.find(marker)
@@ -131,13 +197,7 @@ def parse_order(html_path: Path) -> Order:
     )
     order_number = "".join(re.findall(r"\d", text(desktop_order_number)))
 
-    date_node = first_descendant(
-        parser.root,
-        lambda node: re.fullmatch(r"Order\s+date\s+\d{1,2}\s+[A-Za-z]+\s+\d{4}", text(node)) is not None,
-        "order date",
-    )
-    date_match = re.search(r"(\d{1,2}\s+[A-Za-z]+\s+\d{4})", text(date_node))
-    order_day = datetime.strptime(date_match.group(1), "%d %B %Y").date()
+    order_day = parse_order_date(parser.root)
     order_date_serial = (order_day - date(1899, 12, 30)).days
 
     seller_block = first_descendant(
