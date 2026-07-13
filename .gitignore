@@ -1,0 +1,13 @@
+# Local order data. Never publish these files.
+*.xls
+*.xlsx
+*.xlsm
+*.html
+*.htm
+*_files/
+~$*.xlsx
+Aliexpres order/
+Aliexpres orders1/
+output/
+.codex-work/
+__pycache__/
