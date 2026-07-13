@@ -103,6 +103,9 @@ def first_descendant(node: Node, predicate, description: str) -> Node:
 
 
 def money(value: str) -> float:
+    if value.strip().casefold() in {"free", "бесплатно"}:
+        return 0.0
+
     match = re.search(r"\$\s*([0-9]+(?:[.,][0-9]+)?)", value)
     if not match:
         raise ValueError(f"Could not read a dollar amount from: {value!r}")

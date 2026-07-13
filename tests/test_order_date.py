@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from parse_order import PageTree, parse_order_date
+from parse_order import PageTree, money, parse_order_date
 
 
 class OrderDateTests(unittest.TestCase):
@@ -20,6 +20,9 @@ class OrderDateTests(unittest.TestCase):
     def test_date_without_year_uses_current_year(self):
         current_year = date.today().year
         self.assertEqual(self.read_date("<div>Order date 5 June</div>"), date(current_year, 6, 5))
+
+    def test_free_price_is_zero(self):
+        self.assertEqual(money("Free"), 0.0)
 
     def test_russian_date(self):
         self.assertEqual(self.read_date("<div>Дата заказа 29 января 2024</div>"), date(2024, 1, 29))
