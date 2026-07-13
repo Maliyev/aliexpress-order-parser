@@ -150,7 +150,7 @@ MONTHS = {
 
 ORDER_DATE_PATTERN = re.compile(
     r"(?:order\s+date|date|дата\s+заказа|дата|sifariş\s+tarixi)\s*:?\s*"
-    r"(\d{1,2})\s+([A-Za-zА-Яа-яЁё]+)\s+(\d{4})",
+    r"(\d{1,2})\s+([A-Za-zА-Яа-яЁё]+)(?:\s+(\d{4}))?",
     re.IGNORECASE,
 )
 
@@ -168,7 +168,7 @@ def parse_order_date(root: Node) -> date:
         day, month_name, year = match.groups()
         month = MONTHS.get(month_name.lower())
         if month:
-            return date(int(year), month, int(day))
+            return date(int(year) if year else date.today().year, month, int(day))
 
     raise ValueError(
         "Could not find an order date. The parser supports English, Russian, and Azerbaijani order-date labels."
