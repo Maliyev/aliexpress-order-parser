@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "AliExpress Order HTML Saver",
+  "version": "0.1.0",
+  "description": "Saves the currently open AliExpress order page after a user click.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Save current AliExpress order"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads"
+  ]
+}

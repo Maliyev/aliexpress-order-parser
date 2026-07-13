@@ -4,10 +4,13 @@
 *.xlsm
 *.html
 *.htm
+!extension/popup.html
 *_files/
 ~$*.xlsx
 Aliexpres order/
 Aliexpres orders1/
 output/
+backups/
 .codex-work/
+config.json
 __pycache__/
