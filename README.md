@@ -1,36 +1,45 @@
 # AliExpress order parser
 
-Small local prototype for moving one saved AliExpress order page into an Excel order block.
+Local prototype for moving one manually opened AliExpress order into an Excel order block.
 
-It does not log in to AliExpress, open a browser, or download anything. The user saves an already open order page with Ctrl+S, then runs the script on that local HTML file.
+The project has two separate parts:
 
-## What it reads
+1. The Chrome extension saves the DOM of the current order page when the user clicks its button.
+2. The Python script finds that saved file, shows a preview, asks for fields missing from AliExpress, checks duplicates, then creates a backup and a new Excel copy.
 
-- order date and AliExpress order number
-- tracking number
-- seller name
-- product title, variation, price and quantity
-- order total, item subtotal and delivery price
+The project does not log in to AliExpress, read cookies, make network requests, open other orders, or change the original Excel file.
 
-Columns B, C and E are not available on the saved order page. The script leaves them empty unless a user provides them manually.
+## Setup
 
-## Run locally
+Install the Excel library once:
 
 ```powershell
 python -m pip install -r requirements.txt
+```
 
+Copy `config.example.json` to `config.json` and update the local paths. `config.json` is ignored by Git because it contains local paths.
+
+## Chrome extension
+
+1. Open `chrome://extensions` in Chrome.
+2. Enable Developer mode.
+3. Click Load unpacked.
+4. Select the `extension` folder from this project.
+5. Open one AliExpress order manually and click the extension icon.
+6. Click Save current order HTML.
+
+The extension checks that the page has an order number and product blocks. It saves a UTF-8 file named `AliExpress-order-<order-number>.html` in Downloads.
+
+## Process the latest download
+
+Double-click `run_order_parser.bat`.
+
+The script shows the order preview and asks for manual values for columns B, C and E. It stops if the order ID or tracking number is already in the workbook. If it is new, the script creates a backup of the workbook and saves the updated copy in the configured output folder.
+
+## Direct parser run
+
+```powershell
 python src/parse_order.py "<saved-order.html>" `
   --workbook "<local-template.xlsx>" `
   --output "output\parsed-order.xlsx"
 ```
-
-For a small workbook containing only the header and one order block, add `--new-workbook`:
-
-```powershell
-python src/parse_order.py "<saved-order.html>" `
-  --workbook "<local-template.xlsx>" `
-  --output "output\test-one-order.xlsx" `
-  --new-workbook
-```
-
-The script refuses to overwrite the source workbook or an existing output file.

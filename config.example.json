@@ -1,0 +1,12 @@
+{
+  "downloads_folder": "C:\\path\\to\\Downloads",
+  "excel_template": "C:\\path\\to\\order-template.xlsx",
+  "sheet": "Лист2",
+  "output_folder": "C:\\path\\to\\output",
+  "backup_folder": "C:\\path\\to\\backups",
+  "manual_defaults": {
+    "arrival_date": "",
+    "expected_arrival": "",
+    "forwarder_code": ""
+  }
+}
