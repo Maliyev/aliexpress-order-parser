@@ -34,7 +34,7 @@ The extension checks that the page has an order number and product blocks. It sa
 
 Double-click `run_order_parser.bat`.
 
-The script shows the order preview and asks for manual values for columns B, C and E. It stops if the order ID or tracking number is already in the workbook. If it is new, the script creates a backup of the workbook and saves the updated copy in the configured output folder.
+The script shows the order preview and asks for manual values for columns B, C and E. If AliExpress shows an order date without a year, it uses the current year. It stops if the order ID or tracking number is already in the workbook. If it is new, the script creates a backup of the workbook and saves the updated copy in the configured output folder.
 
 ## Direct parser run
 
