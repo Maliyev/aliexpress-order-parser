@@ -10,10 +10,12 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 
-from parse_order import ensure_empty, next_order_row, parse_order, write_order_block
+from parse_order import parse_order, write_order_block
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+NEW_ORDER_ROW = 51
+REFERENCE_STYLE_ROW = 1055
 
 
 def load_config(config_path: Path) -> dict:
@@ -85,6 +87,11 @@ def make_backup(workbook, source_path: Path, backup_folder: Path) -> Path:
     return backup_path
 
 
+def make_room_at_top(sheet, row_count: int) -> tuple[int, int]:
+    sheet.insert_rows(NEW_ORDER_ROW, amount=row_count)
+    return NEW_ORDER_ROW, REFERENCE_STYLE_ROW + row_count
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=PROJECT_ROOT / "config.json")
@@ -120,12 +127,11 @@ def main():
         return
 
     backup_path = make_backup(workbook, source_path, Path(config["backup_folder"]))
-    start_row = next_order_row(sheet)
     row_count = 1 + sum(
         3 + bool(product.variation) + (product.quantity > 1)
         for product in order.products
     ) + 5
-    ensure_empty(sheet, start_row, row_count)
+    start_row, reference_row = make_room_at_top(sheet, row_count)
     end_row = write_order_block(
         sheet,
         sheet,
@@ -134,6 +140,7 @@ def main():
         arrival_date,
         expected_arrival,
         forwarder_code,
+        reference_row,
     )
 
     output_folder = Path(config["output_folder"])

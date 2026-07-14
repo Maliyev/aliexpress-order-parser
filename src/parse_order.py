@@ -325,8 +325,16 @@ def ensure_empty(sheet, start_row: int, rows: int):
         raise ValueError("The target block is not empty: " + ", ".join(occupied[:10]))
 
 
-def write_order_block(sheet, style_sheet, order: Order, start_row: int, arrival_date: str | None, expected_arrival: str | None, forwarder_code: str | None):
-    reference_row = 1055
+def write_order_block(
+    sheet,
+    style_sheet,
+    order: Order,
+    start_row: int,
+    arrival_date: str | None,
+    expected_arrival: str | None,
+    forwarder_code: str | None,
+    reference_row: int = 1055,
+):
     for column in range(1, 8):
         copy_style(style_sheet.cell(reference_row, column), sheet.cell(start_row, column))
     copy_row_height(style_sheet, sheet, reference_row, start_row)
@@ -344,47 +352,47 @@ def write_order_block(sheet, style_sheet, order: Order, start_row: int, arrival_
         sheet.cell(start_row, column).value = value
 
     if not forwarder_code:
-        copy_style(style_sheet["E1053"], sheet.cell(start_row, 5))
+        copy_style(style_sheet.cell(reference_row - 2, 5), sheet.cell(start_row, 5))
 
     row = start_row + 1
     for product in order.products:
         if product.quantity > 1:
-            copy_style(style_sheet["F1056"], sheet.cell(row, 6))
-            copy_row_height(style_sheet, sheet, 1056, row)
+            copy_style(style_sheet.cell(reference_row + 1, 6), sheet.cell(row, 6))
+            copy_row_height(style_sheet, sheet, reference_row + 1, row)
             sheet.cell(row, 6).value = product.quantity
             row += 1
 
-        copy_style(style_sheet["F1057"], sheet.cell(row, 6))
-        copy_row_height(style_sheet, sheet, 1057, row)
+        copy_style(style_sheet.cell(reference_row + 2, 6), sheet.cell(row, 6))
+        copy_row_height(style_sheet, sheet, reference_row + 2, row)
         sheet.cell(row, 6).value = product.title
         row += 1
 
         if product.variation:
-            copy_style(style_sheet["F1058"], sheet.cell(row, 6))
-            copy_row_height(style_sheet, sheet, 1058, row)
+            copy_style(style_sheet.cell(reference_row + 3, 6), sheet.cell(row, 6))
+            copy_row_height(style_sheet, sheet, reference_row + 3, row)
             sheet.cell(row, 6).value = product.variation
             row += 1
 
-        copy_style(style_sheet["F1059"], sheet.cell(row, 6))
-        copy_row_height(style_sheet, sheet, 1059, row)
+        copy_style(style_sheet.cell(reference_row + 4, 6), sheet.cell(row, 6))
+        copy_row_height(style_sheet, sheet, reference_row + 4, row)
         sheet.cell(row, 6).value = product.price
         row += 1
 
-        copy_style(style_sheet["F1060"], sheet.cell(row, 6))
-        copy_row_height(style_sheet, sheet, 1060, row)
+        copy_style(style_sheet.cell(reference_row + 5, 6), sheet.cell(row, 6))
+        copy_row_height(style_sheet, sheet, reference_row + 5, row)
         sheet.cell(row, 6).value = f"{product.quantity} {'pc.' if product.quantity == 1 else 'pcs.'}"
         row += 1
 
     summary_values = [
-        ("F1102", f"Total price:$ {order.total_price:.2f}"),
-        ("F1103", order.item_count_label),
-        ("F1104", order.item_subtotal),
-        ("F1105", order.delivery_label),
-        ("F1106", order.delivery_price),
+        (reference_row + 47, f"Total price:$ {order.total_price:.2f}"),
+        (reference_row + 48, order.item_count_label),
+        (reference_row + 49, order.item_subtotal),
+        (reference_row + 50, order.delivery_label),
+        (reference_row + 51, order.delivery_price),
     ]
     for source, value in summary_values:
-        copy_style(style_sheet[source], sheet.cell(row, 6))
-        copy_row_height(style_sheet, sheet, style_sheet[source].row, row)
+        copy_style(style_sheet.cell(source, 6), sheet.cell(row, 6))
+        copy_row_height(style_sheet, sheet, source, row)
         sheet.cell(row, 6).value = value
         row += 1
 
