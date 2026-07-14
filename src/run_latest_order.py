@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -78,11 +77,11 @@ def ask_value(label: str, default: str) -> str:
     return answer or default
 
 
-def make_backup(source_path: Path, backup_folder: Path) -> Path:
+def make_backup(workbook, source_path: Path, backup_folder: Path) -> Path:
     backup_folder.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     backup_path = backup_folder / f"{source_path.stem}-{timestamp}.xlsx"
-    shutil.copy2(source_path, backup_path)
+    workbook.save(backup_path)
     return backup_path
 
 
@@ -120,7 +119,7 @@ def main():
         print("Nothing was written.")
         return
 
-    backup_path = make_backup(source_path, Path(config["backup_folder"]))
+    backup_path = make_backup(workbook, source_path, Path(config["backup_folder"]))
     start_row = next_order_row(sheet)
     row_count = 1 + sum(
         3 + bool(product.variation) + (product.quantity > 1)
